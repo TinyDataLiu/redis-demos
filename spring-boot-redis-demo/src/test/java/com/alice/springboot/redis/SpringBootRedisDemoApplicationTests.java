@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.annotation.Resource;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -27,10 +28,7 @@ public class SpringBootRedisDemoApplicationTests {
 
 
     @Test
-    public void contextLoads() {
-        Set<String> keys = redisTemplate.keys("*");
-        keys.forEach(key -> {
-            System.out.println(key + " ----->" + redisTemplate.boundValueOps(key).get());
-        });
+    public void strings() {
+        redisTemplate.opsForValue().set("alice", UUID.randomUUID().toString(), 10L, TimeUnit.SECONDS);
     }
 }
