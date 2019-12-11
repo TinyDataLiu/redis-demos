@@ -29,6 +29,10 @@ public class SpringBootRedisDemoApplicationTests {
 
     @Test
     public void strings() {
-        redisTemplate.opsForValue().set("alice", UUID.randomUUID().toString(), 10L, TimeUnit.SECONDS);
+//        设值 set
+        redisTemplate.boundValueOps("key").set(UUID.randomUUID().toString());
+        System.err.println(redisTemplate.boundValueOps("key").get());
+//        设置字符串类型的值，带有超市时间
+        redisTemplate.opsForValue().set("TIME_OUT", UUID.randomUUID().toString(), 10L, TimeUnit.SECONDS);
     }
 }
