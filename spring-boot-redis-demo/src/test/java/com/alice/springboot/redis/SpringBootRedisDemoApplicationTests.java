@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,6 +38,7 @@ public class SpringBootRedisDemoApplicationTests {
 
 
     @Test
+    @Ignore
     public void strings() {
         redisTemplate.boundValueOps("KEY_3").set("1");
 //        不带参数，默认自增1 且只有整数类型可以操作
@@ -61,7 +63,23 @@ public class SpringBootRedisDemoApplicationTests {
         redisTemplate.boundValueOps("KEY_7").set("KEY_7", 20, TimeUnit.SECONDS);
         Long KEY_7 = redisTemplate.boundValueOps("KEY_7").getExpire();
         out("EXPIRE_KEY_7:", expire.toString());
+
+        BitFieldSubCommands commands = BitFieldSubCommands.create();
+
+        redisTemplate.opsForValue().setBit("onlineUser", 1, true);
     }
+
+    @Test
+    public void bit() {
+
+        redisTemplate.opsForValue().setBit("onlineUser", 1, true);
+        Boolean onlineUser = redisTemplate.opsForValue().getBit("onlineUser", 1);
+        Boolean onlineUser2 = redisTemplate.opsForValue().getBit("onlineUser", 2);
+        Boolean onlineUser3 = redisTemplate.opsForValue().getBit("onlineUser", 0);
+        out("onlineUser", onlineUser.toString(), onlineUser2.toString(), onlineUser3.toString());
+
+    }
+
 
     private void stringsSetGet() {
         //        设置值
