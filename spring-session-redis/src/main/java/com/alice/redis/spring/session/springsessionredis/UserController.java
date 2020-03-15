@@ -14,4 +14,10 @@ public class UserController {
         request.getSession().setAttribute("user", "name");
         return "success";
     }
+
+
+    @GetMapping("get")
+    public Object get(HttpServletRequest request) {
+        return request.getSession().getAttribute("user");
+    }
 }
