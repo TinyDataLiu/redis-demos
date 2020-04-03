@@ -238,3 +238,101 @@ aof-load-truncated yes
 那么对于 AOF 和 RDB 两种持久化方式，我们应该如何选择呢？
 
 如果可以忍受一小段时间内数据的丢失，毫无疑问使用RDB是最好的，定时生成RDB快照（snapshot）非常便于进行数据库备份，并且RDB恢复数据集的速度也要比AOF恢复的速度要快。否则就使用AOF重写。但是一般情况下建议不要单独使用某一种持久化机制，而是应该两种一起用，在这种情况下,当redis重启的时候会优先载入AOF文件来恢复原始的数据，因为在通常情况下AOF文件保存的数据集要比RDB文件保存的数据集要完整。
+
+# 主从复制
+
+配置方式redis.conf ,值需要配置从节点
+
+```properties
+# 配置主节点地址
+replicaof 192.168.1.153 6379
+```
+
+命令行，启动的时候直接指定
+
+```sh
+./redis-server --slaveof 192.168.8.203 6379
+```
+
+查看主从信息命令
+
+```sh
+127.0.0.1:6379> info replication
+# Replication 主节点
+role:master
+connected_slaves:2
+slave0:ip=192.168.1.154,port=6379,state=online,offset=56,lag=0
+slave1:ip=192.168.1.155,port=6379,state=online,offset=56,lag=0
+master_replid:d27fc93ef8df10a1a8111f30595b899aa33b4a01
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:70
+second_repl_offset:-1
+repl_backlog_active:1
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:1
+repl_backlog_histlen:70
+
+127.0.0.1:6379> info replication
+# Replication 从节点
+role:slave
+master_host:192.168.1.153
+master_port:6379
+master_link_status:up
+master_last_io_seconds_ago:9
+master_sync_in_progress:0
+slave_repl_offset:286
+slave_priority:100
+slave_read_only:1
+connected_slaves:0
+master_replid:d27fc93ef8df10a1a8111f30595b899aa33b4a01
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:286
+second_repl_offset:-1
+repl_backlog_active:1
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:1
+repl_backlog_histlen:286
+```
+
+##### 断开复制
+
+```sh
+# 断开主从关系
+redis> slaveof no one
+```
+
+#### 主从复制原理
+
+##### 连接阶段
+
+1. slave node 启动时（执行 slaveof 命令），会在自己本地保存 master node 的信息，包括 master node 的 host 和 ip。
+2. slave node 内部有个定时任务 replicationCron（源码 replication.c），每隔1秒钟检查是否有新的 master node 要连接和复制，如果发现，就跟 master node 建立socket 网络连接，如果连接成功，从节点为该 socket 建立一个专门处理复制工作的文件事件处理器，负责后续的复制工作，如接收 RDB 文件、接收命令传播等。
+
+当从节点变成了主节点的一个客户端之后，会给主节点发送 ping 请求。
+
+##### 数据同步阶段
+
+1. master node 第一次执行全量复制，通过 bgsave 命令在本地生成一份 RDB 快照，将 RDB 快照文件发给 slave node（如果超时会重连，可以调大 repl-timeout 的值）。slave node 首先清除自己的旧数据，然后用 RDB 文件加载数据。
+
+##### <font color=red>生成 RDB 期间，master 接收到的命令怎么处理</font>
+
+开始生成 RDB 文件时，master 会把所有新的写命令缓存在内存中。在 slave node保存了 RDB 之后，再将新的写命令复制给 slave node。
+
+##### 命令传播阶段
+
+master node持续将写命令，异步复制给slave node 延迟是不可避免的，只能通过优化网络
+
+```sh
+# 如果开成yes将不会对数据包进行合并，但是会提升数据的一致性。增加网络带宽，空间换时间
+repl-disable-tcp-nodelay no
+```
+
+##### <font color=red>如果从节点有一段时间断开了与主节点的连接是不是要重新全量复制一遍？如果可以增量复制，怎么知道上次复制到哪里</font>
+
+![1585918556675](img/1585918556675.png)
+
+##### 主从复制的不足
+
+1. RDB 文件过大的情况下，同步非常耗时
+2. 在一主一从或者一主多从的情况下，如果主服务器挂了，对外提供的服务就不可用了，单点问题没有得到解决。如果每次都是手动把之前的从服务器切换成主服务器，这个比较费时费力，还会造成一定时间的服务不可用
+3. 

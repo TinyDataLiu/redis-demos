@@ -6,6 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.HashOperations;
@@ -63,13 +64,12 @@ public class SpringBootRedisDemoApplicationTests {
         redisTemplate.boundValueOps("KEY_7").set("KEY_7", 20, TimeUnit.SECONDS);
         Long KEY_7 = redisTemplate.boundValueOps("KEY_7").getExpire();
         out("EXPIRE_KEY_7:", expire.toString());
-
         BitFieldSubCommands commands = BitFieldSubCommands.create();
-
         redisTemplate.opsForValue().setBit("onlineUser", 1, true);
     }
 
     @Test
+    @Ignore
     public void bit() {
 
         redisTemplate.opsForValue().setBit("onlineUser", 1, true);
@@ -118,4 +118,18 @@ public class SpringBootRedisDemoApplicationTests {
     private String randomVal() {
         return UUID.randomUUID().toString();
     }
+
+
+    @Test
+    public void add() {
+//        for (int i = 0; i < 100; i++) {
+//            redisTemplate.opsForValue().set("alice-" + i, UUID.randomUUID().toString());
+//        }
+
+        Set<String> keys = redisTemplate.keys("*");
+        keys.forEach(key -> {
+            log.info(key);
+        });
+    }
+
 }
