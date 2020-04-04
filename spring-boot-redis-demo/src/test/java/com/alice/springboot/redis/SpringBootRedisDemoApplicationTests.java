@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -124,13 +126,24 @@ public class SpringBootRedisDemoApplicationTests {
 //        Set<String> keys = redisTemplate.keys("cluster*");
 //        keys.forEach(key -> System.out.println(key));
 
-        for (int i = 100; i < 200; i++) {
-//            redisTemplate.opsForValue().set("alice-" + i, UUID.randomUUID().toString());
-            redisTemplate.opsForValue().set("tom-" + i, UUID.randomUUID().toString());
+//        for (int i = 100; i < 200; i++) {
+////            redisTemplate.opsForValue().set("alice-" + i, UUID.randomUUID().toString());
+//            redisTemplate.opsForValue().set("tom-" + i, UUID.randomUUID().toString());
+//
+//
+//        }
 
 
+        Set<String> keys = redisTemplate.keys("*");
+        keys.forEach(key -> System.out.println(key));
+        log.info("keys.size={}", keys.size());
+        redisTemplate.delete(keys);
+
+
+        for (int i = 0; i < 100; i++) {
+            ValueOperations<String, String> operations = redisTemplate.opsForValue();
+            operations.set("cluster:" + i, UUID.randomUUID().toString());
         }
-
 
     }
 
