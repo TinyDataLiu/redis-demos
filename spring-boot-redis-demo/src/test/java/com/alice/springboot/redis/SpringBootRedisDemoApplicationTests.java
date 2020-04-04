@@ -126,7 +126,7 @@ public class SpringBootRedisDemoApplicationTests {
         Set<String> keys = redisTemplate.keys("*");
         keys.forEach(key -> System.out.println(key));
         log.info("keys.size={}", keys.size());
-//        redisTemplate.delete(keys);
+        redisTemplate.delete(keys);
 
 //        for (int i = 100; i < 200; i++) {
 ////            redisTemplate.opsForValue().set("alice-" + i, UUID.randomUUID().toString());
