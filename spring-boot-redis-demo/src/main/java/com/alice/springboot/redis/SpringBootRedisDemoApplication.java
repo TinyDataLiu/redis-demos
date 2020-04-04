@@ -8,6 +8,9 @@ public class SpringBootRedisDemoApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SpringBootRedisDemoApplication.class, args);
+
+
+        StringBuilder stringBuilder = new StringBuilder();
     }
 
 }
