@@ -335,4 +335,56 @@ repl-disable-tcp-nodelay no
 
 1. RDB 文件过大的情况下，同步非常耗时
 2. 在一主一从或者一主多从的情况下，如果主服务器挂了，对外提供的服务就不可用了，单点问题没有得到解决。如果每次都是手动把之前的从服务器切换成主服务器，这个比较费时费力，还会造成一定时间的服务不可用
-3. 
+
+#   可用性保证之Sentinel
+
+##### Sentinel原理
+
+创建一台监控服务器来监控所有Redis服务节点的状态，比如，master节点超过一定时间没有给监控服务器发送心跳报文，就把master标记为下线，然后把某一个slave变成master。应用每一次都是从这个监控服务器拿到master的地址。
+
+<font color=red>Redis 的 Sentinel 就是这种思路：通过运行监控服务器来保证服务的可用性</font>
+
+我们会启动一个或者多个Sentinel的服务（通过src/redis-sentinel），它本质上只是一个运行在特殊模式之下的Redis，Sentinel通过info命令得到被监听Redis机器的master，slave等信息。
+
+![1585967937935](img/1585967937935.png)
+
+为了保证监控服务器的可用性，我们会对Sentinel做集群的部署。Sentinel既监控所有的Redis服务，<font color=red>Sentinel之间也相互监控</font>。
+
+> 注意：Sentinel 本身没有主从之分，只有 Redis 服务节点有主从之分
+>
+> 概念梳理：master，slave（redis group），sentinel，sentinel 集合
+
+##### 服务下线
+
+Sentinel默认以每秒钟1次的频率向Redis服务节点发送PING命令。如果在down-after-milliseconds内都没有收到有效回复，Sentinel会将该服务器标记为下线
+
+```sh
+# 主观下线允许的最大超时时间，就是当sentinel 多久没有收到master的ack的时候会标记成主观下线
+sentinel down-after-milliseconds <master-name> <milliseconds>
+```
+
+这个时候Sentinel节点会继续询问其他的Sentinel节点，确认这个节点是否下线，如果多数Sentinel节点都认为master下线，master才真正确认被下线（客观下线），这个时候就需要重新选举master。
+
+```sh
+# 最后面的 2 表示几个sentinel 标记为主观下线以后认为该master 客观下线
+sentinel monitor redis-master 192.168.1.153 6379 2
+```
+
+##### 故障转移
+
+故障转移流程的第一步就是在Sentinel集群选择一个Leader，由Leader完成故障转移流程。Sentinle通过Raft算法，实现Sentinel选举
+
+##### Rfat算法
+
+[算法演示地址](http://thesecretlivesofdata.com/raft/)
+
+> Raft的核心思想：先到先得，少数服从多数。
+
+Sentinle的Raft算法和Raft论文略有不同。
+
+1. master 客观下线触发选举，而不是过了 election timeout 时间开始选举。
+2. Leader并不会把自己成为Leader的消息发给其他Sentinel。其他Sentinel等待Leader从slave选出master后，检测到新的master正常工作后，就会去掉客观下线的标识，从而不需要进入故障转移流程。
+
+##### 故障转移
+
+**怎么让一个原来的slave节点成为主节点?**
