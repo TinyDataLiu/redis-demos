@@ -13,7 +13,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -122,13 +121,15 @@ public class SpringBootRedisDemoApplicationTests {
 //        }
 
 
-        Set<String> keys = redisTemplate.keys("cluster*");
-        keys.forEach(key -> System.out.println(key));
+//        Set<String> keys = redisTemplate.keys("cluster*");
+//        keys.forEach(key -> System.out.println(key));
 
-//        for (int i = 100; i < 200; i++) {
-////            redisTemplate.opsForValue().set("alice-" + i, UUID.randomUUID().toString());
-//            redisTemplate.opsForValue().set("tom-" + i, UUID.randomUUID().toString());
-//        }
+        for (int i = 100; i < 200; i++) {
+//            redisTemplate.opsForValue().set("alice-" + i, UUID.randomUUID().toString());
+            redisTemplate.opsForValue().set("tom-" + i, UUID.randomUUID().toString());
+
+
+        }
 
 
     }
