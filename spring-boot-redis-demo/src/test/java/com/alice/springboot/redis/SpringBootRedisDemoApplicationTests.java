@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -137,12 +138,11 @@ public class SpringBootRedisDemoApplicationTests {
         Set<String> keys = redisTemplate.keys("*");
         keys.forEach(key -> System.out.println(key));
         log.info("keys.size={}", keys.size());
-        redisTemplate.delete(keys);
 
 
         for (int i = 0; i < 100; i++) {
             ValueOperations<String, String> operations = redisTemplate.opsForValue();
-            operations.set("cluster:" + i, UUID.randomUUID().toString());
+            operations.set("cluster:" + i, UUID.randomUUID().toString(), Duration.ofSeconds(10));
         }
 
     }
