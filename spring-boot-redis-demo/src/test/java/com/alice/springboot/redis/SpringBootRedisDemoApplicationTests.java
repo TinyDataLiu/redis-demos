@@ -1,32 +1,21 @@
 package com.alice.springboot.redis;
 
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.util.DateUtil;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.BitFieldSubCommands;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.Resource;
-import java.text.DateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-
-import static javafx.scene.input.KeyCode.L;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -123,10 +112,18 @@ public class SpringBootRedisDemoApplicationTests {
     @Test
     public void add() {
 
-        Set<String> keys = redisTemplate.keys("*");
+//        Set<String> keys = redisTemplate.keys("*");
+//        keys.forEach(key -> System.out.println(key));
+//        log.info("keys.size={}", keys.size());
+//        redisTemplate.delete(keys);
+
+//        for (int i = 0; i < 100; i++) {
+//            redisTemplate.opsForValue().set("cluster:" + i, UUID.randomUUID().toString());
+//        }
+
+
+        Set<String> keys = redisTemplate.keys("cluster*");
         keys.forEach(key -> System.out.println(key));
-        log.info("keys.size={}", keys.size());
-        redisTemplate.delete(keys);
 
 //        for (int i = 100; i < 200; i++) {
 ////            redisTemplate.opsForValue().set("alice-" + i, UUID.randomUUID().toString());
