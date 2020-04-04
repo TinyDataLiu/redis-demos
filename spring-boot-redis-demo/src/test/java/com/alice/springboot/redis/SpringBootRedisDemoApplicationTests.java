@@ -122,14 +122,17 @@ public class SpringBootRedisDemoApplicationTests {
 
     @Test
     public void add() {
-//        for (int i = 0; i < 100; i++) {
+
+        Set<String> keys = redisTemplate.keys("tom*");
+
+        redisTemplate.delete(keys);
+
+//        for (int i = 100; i < 200; i++) {
 //            redisTemplate.opsForValue().set("alice-" + i, UUID.randomUUID().toString());
+//            redisTemplate.opsForValue().set("tom-" + i, UUID.randomUUID().toString());
 //        }
 
-        Set<String> keys = redisTemplate.keys("*");
-        keys.forEach(key -> {
-            log.info(key);
-        });
+
     }
 
 }
