@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Transaction;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -23,6 +24,8 @@ public class LuaTest {
         Jedis jedis = getJedis();
         jedis.eval("return redis.call('set',KEYS[1],ARGV[1])", 1, KEY, UUID.randomUUID().toString());
         log.info("{}", jedis.get(KEY));
+        Transaction multi = jedis.multi();
+        multi.exec();
     }
 
     public static void limitIp() {
