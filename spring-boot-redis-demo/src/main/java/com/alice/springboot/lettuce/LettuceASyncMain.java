@@ -20,6 +20,11 @@ public class LettuceASyncMain {
 //      异步的结果使用 RedisFuture 包装，提供了大量回调的方法。
         RedisFuture<String> future = async.get("lettuce:async");
 
+//        RedisFuture<String> multi = async.multi();
+//
+//        async.discard();
+//        async.exec();
+//        async.watch("");
         try {
             String result = future.get(60L, TimeUnit.SECONDS);
             log.info("result={}", result);
