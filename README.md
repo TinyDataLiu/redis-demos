@@ -4,6 +4,11 @@
 
 > spring boot 操作Redis
 
+# 脑图
+
+![体系图](Redis.png)
+
+
 # Redis为什么这快
 
 1. 纯内存结构：KV 结构的内存数据库，时间复杂度 O(1)

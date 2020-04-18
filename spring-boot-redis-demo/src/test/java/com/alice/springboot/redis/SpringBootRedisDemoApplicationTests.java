@@ -8,20 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = {SpringBootRedisDemoApplication.class})
 public class SpringBootRedisDemoApplicationTests {
 
 
@@ -114,6 +111,8 @@ public class SpringBootRedisDemoApplicationTests {
     @Test
     public void add() {
 
+        redisTemplate.opsForHash().put("test", "t1", "100");
+
 //        Set<String> keys = redisTemplate.keys("*");
 //        keys.forEach(key -> System.out.println(key));
 //        log.info("keys.size={}", keys.size());
@@ -134,16 +133,16 @@ public class SpringBootRedisDemoApplicationTests {
 //
 //        }
 
-
-        Set<String> keys = redisTemplate.keys("*");
-        keys.forEach(key -> System.out.println(key));
-        log.info("keys.size={}", keys.size());
-
-
-        for (int i = 0; i < 100; i++) {
-            ValueOperations<String, String> operations = redisTemplate.opsForValue();
-            operations.set("cluster:" + i, UUID.randomUUID().toString(), Duration.ofSeconds(10));
-        }
+//
+//        Set<String> keys = redisTemplate.keys("*");
+//        keys.forEach(key -> System.out.println(key));
+//        log.info("keys.size={}", keys.size());
+//
+//
+//        for (int i = 0; i < 100; i++) {
+//            ValueOperations<String, String> operations = redisTemplate.opsForValue();
+//            operations.set("cluster:" + i, UUID.randomUUID().toString(), Duration.ofSeconds(10));
+//        }
 
     }
 
