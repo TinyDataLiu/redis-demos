@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * 19:53:10.755 [pipelined] INFO com.alice.springboot.jedis.pipeline.PipelineGetMain - time=315
@@ -16,6 +17,21 @@ import java.util.Set;
 @Slf4j
 public class PipelineGetMain {
     public static void main(String[] args) throws IOException {
+
+
+        new Thread(() -> {
+            Long s = System.currentTimeMillis();
+            log.info("start={}", s);
+            Jedis jedis = new Jedis("192.168.1.153", 6379);
+            Pipeline pipelined = jedis.pipelined();
+            for (int i = 0; i < 100_0000; i++) {
+                pipelined.set("batch:" + i, UUID.randomUUID().toString());
+            }
+            pipelined.sync();
+            log.info("time = {}", System.currentTimeMillis() - s);
+        }, "add").start();
+
+
         new Thread(() -> {
             Jedis jedis = new Jedis("192.168.1.153", 6379);
             Set<String> keys = jedis.keys("batch*");
