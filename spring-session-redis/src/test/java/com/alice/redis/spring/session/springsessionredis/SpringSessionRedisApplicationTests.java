@@ -1,7 +1,6 @@
 package com.alice.redis.spring.session.springsessionredis;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @SpringBootTest
@@ -68,15 +66,20 @@ class SpringSessionRedisApplicationTests {
 
     @Test
     void zset() {
-        for (int i = 0; i < 100; i++) {
-            redisTemplate.opsForZSet().add("zset", RandomStringUtils.random(5, true, false).toLowerCase(), ThreadLocalRandom.current().nextInt(5000));
-        }
+//        for (int i = 0; i < 100; i++) {
+//            redisTemplate.opsForZSet().add("zset", "alice:" + i, i);
+//        }
         ZSetOperations<Object, Object> zSet = redisTemplate.opsForZSet();
-
         Set<Object> objects = zSet.reverseRange("zset", 0, 10);
+//        objects.forEach(o -> {
+//            Double score = zSet.incrementScore("zset", o, ThreadLocalRandom.current().nextDouble(200));
+//            log.info("o={},score={}", o, score);
+//        });
 
-        objects.forEach(key -> log.info("key={}", key));
 
+        objects.forEach(member -> {
+            log.info("member={}", member);
+        });
 
     }
 
