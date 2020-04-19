@@ -13,5 +13,7 @@ spring:
   session:
     redis:
       save-mode: on_set_attribute
+    hazelcast:
+      map-name: spring:session:redis:session
 server:
   port: 9090
