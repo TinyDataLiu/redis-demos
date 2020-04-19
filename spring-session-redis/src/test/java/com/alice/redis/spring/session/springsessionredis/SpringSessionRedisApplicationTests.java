@@ -8,6 +8,8 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,5 +47,19 @@ class SpringSessionRedisApplicationTests {
 
         redisTemplate.keys("user*").forEach(key -> log.info("key = {} , value = {}", key, redisTemplate.opsForValue().get(key)));
     }
+
+
+    @Test
+    void set() {
+        List<Integer> integers = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            integers.add(i);
+        }
+        redisTemplate.opsForSet().add("set", integers.toArray());
+        Object set = redisTemplate.opsForSet().pop("set");
+        Object randomMember = redisTemplate.opsForSet().randomMember("set");
+        log.info("set={},randomMember={},size={}", set, randomMember, redisTemplate.opsForSet().members("set"));
+    }
+
 
 }
