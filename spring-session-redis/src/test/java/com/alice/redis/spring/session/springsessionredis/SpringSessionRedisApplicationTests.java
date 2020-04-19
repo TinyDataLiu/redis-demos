@@ -1,6 +1,7 @@
 package com.alice.redis.spring.session.springsessionredis;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,10 +10,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @SpringBootTest
@@ -116,11 +115,36 @@ class SpringSessionRedisApplicationTests {
 
         Long range = zSet.removeRangeByScore("invest:all", 0, 5000);
         log.info("range={}", range);
+        Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("GTM+8"));
+        for (int i = 0; i < 100; i++) {
+            zSet.add("invest:day:" + instance.get(Calendar.DAY_OF_YEAR), "150" + RandomStringUtils.random(8, false, true), 100);
+            zSet.add("invest:month:" + (instance.get(Calendar.MONTH) + 1), "", 100);
+        }
 
 
-        zSet.reverseRangeWithScores(invAll, 0, 20).forEach(member -> {
-            log.info("{}-----{}", member.getValue(), member.getScore());
-        });
+//        zSet.reverseRangeWithScores(invAll, 0, 20).forEach(member -> {
+//            instance.set(2018, 2, 28);
+//            int yearDay = instance.get(Calendar.DAY_OF_YEAR);
+//            int i = instance.get(Calendar.YEAR);
+//            int month = instance.get(Calendar.MONTH);
+//            String format = DateFormatUtils.format(instance.getTime(), "yyyy-MM-dd");
+//            log.info("i={},yearDay={},month={},format={}", i, yearDay, month, format);
+//            log.info("{}-----{}", member.getValue(), member.getScore());
+//        });
+    }
+
+
+    private String randomPhoneNum() {
+        String[] prefixs = {"137", "138", "139", "150", "151", "136", "158"};
+        return prefixs[ThreadLocalRandom.current().nextInt(prefixs.length)] + RandomStringUtils.random(8, false, true);
+    }
+
+
+    @Test
+    void getPhone() {
+        for (int i = 0; i < 100; i++) {
+            log.info("phone={}", randomPhoneNum());
+        }
     }
 
 }
