@@ -24,7 +24,7 @@ public class PipelineGetMain {
             log.info("start={}", s);
             Jedis jedis = new Jedis("192.168.1.153", 6379);
             Pipeline pipelined = jedis.pipelined();
-            for (int i = 0; i < 100_0000; i++) {
+            for (int i = 0; i < 10_0000; i++) {
                 pipelined.set("batch:" + i, UUID.randomUUID().toString());
             }
             pipelined.sync();
