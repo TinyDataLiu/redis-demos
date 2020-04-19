@@ -76,11 +76,51 @@ class SpringSessionRedisApplicationTests {
 //            log.info("o={},score={}", o, score);
 //        });
 
+//
+//        for (int i = 0; i < 1000; i++) {
+//            zSet.add("invest:0", "150" + RandomStringUtils.random(8, false, true), ThreadLocalRandom.current().nextInt(50000));
+//            zSet.add("invest:1", "158" + RandomStringUtils.random(8, false, true), ThreadLocalRandom.current().nextInt(50000));
+//        }
 
-        objects.forEach(member -> {
-            log.info("member={}", member);
+//        Set<Object> invest = zSet.range("invest", 0, 5);
+//        invest.forEach(member -> log.info("member={}", member));
+//
+//
+//        Set<Object> byScore = zSet.reverseRangeByScore("invest", 2000L, 5000L);
+//        byScore.forEach(member -> log.info("member={}", member));
+//
+//        Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSet.reverseRangeByScoreWithScores("invest", 0L, 168);
+//        log.info("typedTuples.size={}", typedTuples.size());
+//        typedTuples.forEach(typedTuple -> log.info("score={},value={}", typedTuple.getScore(), typedTuple.getValue()));
+
+
+//        Set<ZSetOperations.TypedTuple<Object>> invest = zSet.reverseRangeWithScores("invest", 0, 5);
+//        invest.forEach(member -> {
+//            log.info("phone={},score={}", member.getValue(), member.getScore());
+//        });
+//          合并并保存
+//        Long store = zSet.unionAndStore("invest:0", "invest:1", "invest:all");
+
+//        log.info("store={}", store);
+
+
+        Double score = zSet.score("invest:all", "15824587384");
+//        log.info("score={}", score);
+
+
+//        Long range = zSet.removeRange("invest:all", 1, 20);
+//        log.info("range={}", range);
+
+
+        String invAll = "invest:all";
+
+        Long range = zSet.removeRangeByScore("invest:all", 0, 5000);
+        log.info("range={}", range);
+
+
+        zSet.reverseRangeWithScores(invAll, 0, 20).forEach(member -> {
+            log.info("{}-----{}", member.getValue(), member.getScore());
         });
-
     }
 
 }
