@@ -180,4 +180,27 @@ class SpringSessionRedisApplicationTests {
         log.info("user={}", user);
     }
 
+    @Test
+    void userZSet() {
+        String key = "user";
+        ZSetOperations<String, User> set = userRedisTemplate.opsForZSet();
+        User user = new User();
+        user.setDate(new Date());
+        for (int i = 0; i < 10_000; i++) {
+            user.setName(RandomStringUtils.random(5, true, false).toLowerCase())
+                    .setAge(ThreadLocalRandom.current().nextInt(20, 55))
+                    .setPhone(randomPhoneNum())
+            ;
+            set.add(key, user, ThreadLocalRandom.current().nextInt(50001));
+        }
+        Set<ZSetOperations.TypedTuple<User>> tuples = set.reverseRangeWithScores(key, 0, 10);
+        tuples.forEach(member -> {
+            log.info("user={},score={}", member.getValue(), member.getScore());
+        });
+
+
+//        Boolean expire = userRedisTemplate.expire(key, 30, TimeUnit.SECONDS);
+//        log.info("expire={}", expire);
+    }
+
 }
