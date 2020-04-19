@@ -55,10 +55,12 @@ class SpringSessionRedisApplicationTests {
         for (int i = 0; i < 100; i++) {
             integers.add(i);
         }
-        redisTemplate.opsForSet().add("set", integers.toArray());
-        Object set = redisTemplate.opsForSet().pop("set");
-        Object randomMember = redisTemplate.opsForSet().randomMember("set");
-        log.info("set={},randomMember={},size={}", set, randomMember, redisTemplate.opsForSet().members("set"));
+//        redisTemplate.opsForSet().add("set", integers.toArray());
+        for (int i = 0; i < 15; i++) {
+            Object set = redisTemplate.opsForSet().pop("set");
+            Object randomMember = redisTemplate.opsForSet().randomMember("set");
+            log.info("set={},randomMember={},size={}", set, randomMember, redisTemplate.opsForSet().members("set").size());
+        }
     }
 
 
