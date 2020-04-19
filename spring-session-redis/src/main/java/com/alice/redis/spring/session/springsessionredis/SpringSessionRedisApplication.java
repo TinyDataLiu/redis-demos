@@ -23,11 +23,26 @@ public class SpringSessionRedisApplication {
         RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(lettuceConnectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
 
-        FastJsonRedisSerializer serializer = new FastJsonRedisSerializer(Object.class);
+        CustomFastJsonRedisSerializer serializer = new CustomFastJsonRedisSerializer(Object.class);
         redisTemplate.setValueSerializer(serializer);
         redisTemplate.setHashValueSerializer(serializer);
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        return redisTemplate;
+    }
+
+
+    @Bean(name = "userRedisTemplate")
+    RedisTemplate<String, User> userRedisTemplate(LettuceConnectionFactory factory) {
+        RedisTemplate<String, User> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(factory);
+        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+        redisTemplate.setKeySerializer(stringRedisSerializer);
+        redisTemplate.setHashKeySerializer(stringRedisSerializer);
+
+        FastJsonRedisSerializer<User> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(User.class);
+        redisTemplate.setValueSerializer(fastJsonRedisSerializer);
+        redisTemplate.setHashKeySerializer(fastJsonRedisSerializer);
         return redisTemplate;
     }
 }

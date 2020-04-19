@@ -1,5 +1,6 @@
 package com.alice.redis.spring.session.springsessionredis;
 
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.ZSetOperations;
 
 import java.io.UnsupportedEncodingException;
@@ -19,6 +21,8 @@ class SpringSessionRedisApplicationTests {
 
     @Autowired
     private RedisTemplate<Object, Object> redisTemplate;
+    @Autowired
+    private RedisTemplate<String, User> userRedisTemplate;
 
     @Test
     void contextLoads() {
@@ -39,14 +43,14 @@ class SpringSessionRedisApplicationTests {
     }
 
 
-    @Test
-    void addUser() {
-        for (int i = 0; i < 20; i++) {
-            redisTemplate.opsForValue().set("user:" + i, User.builder().age(i).name(UUID.randomUUID().toString()).build());
-        }
-
-        redisTemplate.keys("user*").forEach(key -> log.info("key = {} , value = {}", key, redisTemplate.opsForValue().get(key)));
-    }
+//    @Test
+//    void addUser() {
+//        for (int i = 0; i < 20; i++) {
+//            redisTemplate.opsForValue().set("user:" + i, User.builder().age(i).name(UUID.randomUUID().toString()).build());
+//        }
+//
+//        redisTemplate.keys("user*").forEach(key -> log.info("key = {} , value = {}", key, redisTemplate.opsForValue().get(key)));
+//    }
 
 
     @Test
@@ -103,7 +107,7 @@ class SpringSessionRedisApplicationTests {
 //        log.info("store={}", store);
 
 
-        Double score = zSet.score("invest:all", "15824587384");
+//        Double score = zSet.score("invest:all", "15824587384");
 //        log.info("score={}", score);
 
 
@@ -116,11 +120,30 @@ class SpringSessionRedisApplicationTests {
         Long range = zSet.removeRangeByScore("invest:all", 0, 5000);
         log.info("range={}", range);
         Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("GTM+8"));
-        for (int i = 0; i < 100; i++) {
-            zSet.add("invest:day:" + instance.get(Calendar.DAY_OF_YEAR), "150" + RandomStringUtils.random(8, false, true), 100);
-            zSet.add("invest:month:" + (instance.get(Calendar.MONTH) + 1), "", 100);
-        }
+//        for (int i = 0; i < 100; i++) {
+//            zSet.add("invest:" + instance.get(Calendar.YEAR) + ":day:" + instance.get(Calendar.DAY_OF_YEAR), randomPhoneNum(), ThreadLocalRandom.current().nextInt(50000));
+//            zSet.add("invest:" + instance.get(Calendar.YEAR) + ":month:" + (instance.get(Calendar.MONTH) + 1), randomPhoneNum(), ThreadLocalRandom.current().nextInt(50000));
+//        }
 
+
+        String personKey = "person:" + instance.get(Calendar.YEAR) + ":day:" + instance.get(Calendar.DAY_OF_YEAR);
+//
+//        for (int i = 0; i < 200; i++) {
+//
+//            User user = User.builder()
+//                    .name(RandomStringUtils.random(5, true, false))
+//                    .age(ThreadLocalRandom.current().nextInt(18, 55))
+//                    .phone(randomPhoneNum())
+//                    .build();
+//
+//            zSet.add(personKey, user, ThreadLocalRandom.current().nextInt(50000));
+//        }
+
+
+        zSet.reverseRangeWithScores(personKey, 0, 10).forEach(member -> {
+            User user = JSON.parseObject(member.toString(), User.class);
+            log.info("user={},score={}", user, member.getScore());
+        });
 
 //        zSet.reverseRangeWithScores(invAll, 0, 20).forEach(member -> {
 //            instance.set(2018, 2, 28);
@@ -145,6 +168,16 @@ class SpringSessionRedisApplicationTests {
         for (int i = 0; i < 100; i++) {
             log.info("phone={}", randomPhoneNum());
         }
+    }
+
+
+    @Test
+    void addUserTo() {
+        ValueOperations<String, User> value = userRedisTemplate.opsForValue();
+        String key = "user-test-01";
+        value.set(key, new User().setAge(18).setName("alice").setPhone(randomPhoneNum()).setDate(new Date()));
+        User user = value.get(key);
+        log.info("user={}", user);
     }
 
 }
