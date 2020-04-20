@@ -9,6 +9,8 @@ public class RedissonClientUtils {
         Config config = new Config();
         config.useSingleServer().setAddress("redis://192.168.1.153:6379").setDatabase(1).setConnectTimeout(5000);
         RedissonClient client = Redisson.create(config);
+
+        client.getLock("");
         return client;
     }
 }

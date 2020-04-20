@@ -6,6 +6,5 @@ import org.redisson.api.RedissonClient;
 public class RedissonProducer {
     public static void main(String[] args) {
         RedissonClient client = RedissonClientUtils.getClient();
-         
     }
 }
